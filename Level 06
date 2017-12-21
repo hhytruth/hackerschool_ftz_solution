@@ -1,0 +1,19 @@
+login as: level6
+level6@192.168.35.100's password:
+
+
+hint - 인포샵 bbs의 텔넷 접속 메뉴에서 많이 사용되던 해킹 방법이다.
+###  텔넷 서비스에서 Ctrl + C를 접속 전 계속 누르면 해킹할 수 있다는 방법을 이용한다
+### 이 상태에서 Ctrl + C 입력
+
+[level6@ftz level6]$ ll
+total 32
+-rw-r--r--    1 root     root           72 Nov 23  2000 hint
+-rw-r-----    1 root     level6         36 Mar 24  2000 password
+drwxr-xr-x    2 root     level6       4096 May 16  2005 public_html
+drwxrwxr-x    2 root     level6       4096 Jan 14  2009 tmp
+-rwxr-x---    1 root     level6      14910 Mar  5  2003 tn
+
+[level6@ftz level6]$ cat password	### password 파일을 출력해본다
+Level7 password is "come together".
+[level6@ftz level6]$
