@@ -1,0 +1,34 @@
+login as: level7
+level7@192.168.35.100's password:
+[level7@ftz level7]$ ll
+total 12
+-rw-r--r--    1 root     root          185 Nov 23  2000 hint
+drwxr-xr-x    2 root     level7       4096 Feb 24  2002 public_html
+drwxrwxr-x    2 root     level7       4096 Jan  9  2009 tmp
+[level7@ftz level7]$ cat hint
+
+
+/bin/level7 명령을 실행하면, 패스워드 입력을 요청한다.
+
+1. 패스워드는 가까운곳에..
+2. 상상력을 총동원하라.
+3. 2진수를 10진수를 바꿀 수 있는가?
+4. 계산기 설정을 공학용으로 바꾸어라.
+
+
+[level7@ftz level7]$ /bin/level7
+Insert The Password : lkdfsd		### 패스워드에 아무거나 입력해본다
+hello, y0upd(Pwn&Play)!?
+Can't Password.Near the Password!
+--_--_- --___- ---_-__ --__-_-		
+### -를 1로, _를 0으로 해석하고 2진수를 10진수로 변환해준다
+### 결과: 109 97 116 101(중간의 스페이스로 구분)
+### ->이 값을 아스키코드로 변환---------------------------->mate
+
+[level7@ftz level7]$ level7
+Insert The Password : mate
+
+Congratulation! next password is "break the world".
+
+[level7@ftz level7]$
+
